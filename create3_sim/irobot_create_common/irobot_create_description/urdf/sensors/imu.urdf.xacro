@@ -58,6 +58,26 @@
             </noise>
           </z>
         </linear_acceleration>
+        <!-- <magnetometer>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>0.0</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>0.0</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>0.0</stddev>
+            </noise>
+          </z>
+        </magnetometer>  -->
       </imu>
       <xacro:if value="${gazebo == 'classic'}">
         <plugin name="${name}_plugin" filename="libgazebo_ros_create_imu.so">

@@ -11,6 +11,7 @@
  
  #include "rclcpp/rclcpp.hpp"
  #include "sensor_msgs/msg/imu.hpp"
+ #include <sensor_msgs/msg/magnetic_field.hpp>
  
  namespace irobot_create_ignition_toolbox
  {
@@ -26,6 +27,12 @@
    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
  
    void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
+  // void mag_callback(const sensor_msgs::msg::MagneticField::SharedPtr msg);
+
+  // // 추가: 자기장 데이터 처리를 위한 변수
+  // rclcpp::Subscription<sensor_msgs::msg::MagneticField>::SharedPtr mag_sub_;
+  // rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_pub_;
+  // bool has_mag_data_ = false;
  };
  
  }  // namespace irobot_create_ignition_toolbox

@@ -221,12 +221,27 @@ def generate_launch_description():
             '/link/imu_link/sensor/imu/imu' +
             '@sensor_msgs/msg/Imu' +
             '[ignition.msgs.IMU']
+            # ,
+
+            # # 추가: 자기장 데이터 브릿지
+            # ['/world/', world,
+            # '/model/', robot_name,
+            # '/link/imu_link/sensor/imu/mag' +
+            # '@sensor_msgs/msg/MagneticField' +
+            # '[ignition.msgs.Magnetometer']
         ],
         remappings=[
             (['/world/', world,
             '/model/', robot_name,
             '/link/imu_link/sensor/imu/imu'],
             'imu')
+            # ,
+
+            # # 추가: 자기장 데이터 리매핑
+            # (['/world/', world,
+            # '/model/', robot_name,
+            # '/link/imu_link/sensor/imu/mag'],
+            # '_internal/imu/mag')
         ])
     
     # Define LaunchDescription variable
