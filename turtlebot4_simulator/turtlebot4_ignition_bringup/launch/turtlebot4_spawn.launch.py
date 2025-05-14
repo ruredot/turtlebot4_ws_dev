@@ -27,6 +27,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 from launch_ros.actions import Node, PushRosNamespace
+from launch.conditions import LaunchConfigurationEquals, LaunchConfigurationNotEquals
 
 
 ARGUMENTS = [
@@ -50,6 +51,9 @@ ARGUMENTS = [
     DeclareLaunchArgument('nav2', default_value='false',
                           choices=['true', 'false'],
                           description='Whether to launch Nav2'),
+    DeclareLaunchArgument('use_gpu_lidar', default_value='false',
+                          choices=['true', 'false'],
+                          description='Use GPU LiDAR instead of RPLiDAR'),
 ]
 
 for pose_element in ['x', 'y', 'z', 'yaw']:
@@ -131,7 +135,8 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([robot_description_launch]),
             launch_arguments=[('model', LaunchConfiguration('model')),
-                              ('use_sim_time', LaunchConfiguration('use_sim_time'))]
+                            ('use_sim_time', LaunchConfiguration('use_sim_time')),
+                            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar'))]
         ),
 
         # Dock description
@@ -201,7 +206,7 @@ def generate_launch_description():
             ]
         ),
 
-        # RPLIDAR static transforms
+        # RPLIDAR static transforms - 2D LiDAR
         Node(
             name='rplidar_stf',
             package='tf2_ros',
@@ -213,7 +218,40 @@ def generate_launch_description():
             remappings=[
                 ('/tf', 'tf'),
                 ('/tf_static', 'tf_static'),
-            ]
+            ],
+            condition=LaunchConfigurationNotEquals('use_gpu_lidar', 'true')
+        ),
+
+        # RPLIDAR static transforms - 3D LiDAR
+        Node(
+            name='rplidar_stf_3d',
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=[
+                '0', '0', '0', '0', '0', '0.0',
+                'rplidar_link', [robot_name, '/rplidar_link/rplidar']],
+            remappings=[
+                ('/tf', 'tf'),
+                ('/tf_static', 'tf_static'),
+            ],
+            condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
+        ),
+
+        # 3D LiDAR point cloud static transform
+        Node(
+            name='rplidar_points_stf',
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=[
+                '0', '0', '0', '0', '0', '0.0',
+                'rplidar_link', [robot_name, '/rplidar_link/rplidar/points']],
+            remappings=[
+                ('/tf', 'tf'),
+                ('/tf_static', 'tf_static'),
+            ],
+            condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
         ),
 
         # OAKD static transform

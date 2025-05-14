@@ -36,6 +36,9 @@ ARGUMENTS = [
                           description='Robot name'),
     DeclareLaunchArgument('namespace', default_value=LaunchConfiguration('robot_name'),
                           description='Robot namespace'),
+    DeclareLaunchArgument('use_gpu_lidar', default_value='false',
+                          choices=['true', 'false'],
+                          description='Use GPU LiDAR instead of RPLiDAR'),
 ]
 
 
@@ -57,7 +60,8 @@ def generate_launch_description():
             {'robot_description': Command([
                 'xacro', ' ', xacro_file, ' ',
                 'gazebo:=ignition', ' ',
-                'namespace:=', namespace])},
+                'namespace:=', namespace, ' ',
+                'use_gpu_lidar:=', LaunchConfiguration('use_gpu_lidar')])},
         ],
         remappings=[
             ('/tf', 'tf'),

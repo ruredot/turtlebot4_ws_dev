@@ -24,6 +24,7 @@ from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
 
 from launch_ros.actions import Node
+from launch.conditions import LaunchConfigurationEquals, LaunchConfigurationNotEquals
 
 ARGUMENTS = [
     DeclareLaunchArgument('use_sim_time', default_value='true',
@@ -40,6 +41,9 @@ ARGUMENTS = [
     DeclareLaunchArgument('model', default_value='standard',
                           choices=['standard', 'lite'],
                           description='Turtlebot4 Model'),
+    DeclareLaunchArgument('use_gpu_lidar', default_value='false',
+                          choices=['true', 'false'],
+                          description='Use GPU LiDAR instead of RPLiDAR'),
 ]
 
 
@@ -76,8 +80,8 @@ def generate_launch_description():
         ]
     )
 
-    # lidar bridge
-    lidar_bridge = Node(
+    # 2D lidar bridge
+    lidar_2d_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         name='lidar_bridge',
@@ -87,16 +91,52 @@ def generate_launch_description():
         }],
         arguments=[
             ['/world/', world,
-             '/model/', robot_name,
-             '/link/rplidar_link/sensor/rplidar/scan' +
-             '@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan']
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/scan' +
+            '@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan']
         ],
         remappings=[
             (['/world/', world,
-              '/model/', robot_name,
-              '/link/rplidar_link/sensor/rplidar/scan'],
-             'scan')
-        ])
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/scan'],
+            'scan')
+        ],
+        condition=LaunchConfigurationNotEquals('use_gpu_lidar', 'true')
+    )
+
+    # 3D LiDAR bridge
+    lidar_3d_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='lidar_3d_bridge',
+        output='screen',
+        parameters=[{
+            'use_sim_time': use_sim_time
+        }],
+        arguments=[
+            # 기본 2D 스캔 호환성 유지
+            ['/world/', world,
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/scan' +
+            '@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan'],
+            # 3D 포인트클라우드 추가
+            ['/world/', world,
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/points' +
+            '@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked']
+        ],
+        remappings=[
+            (['/world/', world,
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/scan'],
+            'scan'),
+            (['/world/', world,
+            '/model/', robot_name,
+            '/link/rplidar_link/sensor/rplidar/points'],
+            'cloud')
+        ],
+        condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
+    )
 
     # Display message bridge
     hmi_display_msg_bridge = Node(
@@ -250,7 +290,8 @@ def generate_launch_description():
     ld.add_action(hmi_display_msg_bridge)
     ld.add_action(hmi_buttons_msg_bridge)
     ld.add_action(hmi_led_msg_bridge)
-    ld.add_action(lidar_bridge)
+    ld.add_action(lidar_2d_bridge)
+    ld.add_action(lidar_3d_bridge)
     ld.add_action(oakd_camera_bridge)
     ld.add_action(imu_bridge)
     return ld

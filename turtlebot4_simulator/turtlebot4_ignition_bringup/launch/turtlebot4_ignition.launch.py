@@ -33,6 +33,9 @@ ARGUMENTS = [
     DeclareLaunchArgument('model', default_value='standard',
                           choices=['standard', 'lite'],
                           description='Turtlebot4 Model'),
+    DeclareLaunchArgument('use_gpu_lidar', default_value='false',
+                          choices=['true', 'false'],
+                          description='Use GPU LiDAR instead of RPLiDAR'),
 ]
 
 for pose_element in ['x', 'y', 'z', 'yaw']:
@@ -66,7 +69,8 @@ def generate_launch_description():
             ('x', LaunchConfiguration('x')),
             ('y', LaunchConfiguration('y')),
             ('z', LaunchConfiguration('z')),
-            ('yaw', LaunchConfiguration('yaw'))]
+            ('yaw', LaunchConfiguration('yaw')),
+            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar'))]
     )
 
     # Create launch description and add actions
