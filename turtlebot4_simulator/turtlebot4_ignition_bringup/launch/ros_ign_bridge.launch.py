@@ -122,7 +122,7 @@ def generate_launch_description():
             # 3D 포인트클라우드 추가
             ['/world/', world,
             '/model/', robot_name,
-            '/link/rplidar_link/sensor/rplidar/points' +
+            '/link/rplidar_link/sensor/rplidar/scan/points' +
             '@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked']
         ],
         remappings=[
@@ -132,7 +132,7 @@ def generate_launch_description():
             'scan'),
             (['/world/', world,
             '/model/', robot_name,
-            '/link/rplidar_link/sensor/rplidar/points'],
+            '/link/rplidar_link/sensor/rplidar/scan/points'],
             'cloud')
         ],
         condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
