@@ -36,6 +36,9 @@ ARGUMENTS = [
     DeclareLaunchArgument('use_gpu_lidar', default_value='false',
                           choices=['true', 'false'],
                           description='Use GPU LiDAR instead of RPLiDAR'),
+    DeclareLaunchArgument('use_velodyne_lidar', default_value='false',
+                          choices=['true', 'false'],
+                          description='Use Velodyne LiDAR instead of RPLiDAR'),
 ]
 
 for pose_element in ['x', 'y', 'z', 'yaw']:
@@ -70,7 +73,8 @@ def generate_launch_description():
             ('y', LaunchConfiguration('y')),
             ('z', LaunchConfiguration('z')),
             ('yaw', LaunchConfiguration('yaw')),
-            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar'))]
+            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar')),
+            ('use_velodyne_lidar', LaunchConfiguration('use_velodyne_lidar'))]
     )
 
     # Create launch description and add actions

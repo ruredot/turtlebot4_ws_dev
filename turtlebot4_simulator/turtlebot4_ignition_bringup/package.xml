@@ -36,6 +36,12 @@
   <depend>geometry_msgs</depend>
   <depend>irobot_create_msgs</depend>
 
+  <!-- Velodyne -->
+  <depend>velodyne_msgs</depend>
+  <depend>velodyne_driver</depend>
+  <depend>velodyne_pointcloud</depend>
+  <depend>pointcloud_to_laserscan</depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
