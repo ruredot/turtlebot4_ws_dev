@@ -44,9 +44,6 @@ ARGUMENTS = [
     DeclareLaunchArgument('use_gpu_lidar', default_value='false',
                           choices=['true', 'false'],
                           description='Use GPU LiDAR instead of RPLiDAR'),
-    DeclareLaunchArgument('use_velodyne_lidar', default_value='false',
-                          choices=['true', 'false'],
-                          description='Use Velodyne LiDAR instead of RPLiDAR'),
 ]
 
 
@@ -104,7 +101,7 @@ def generate_launch_description():
             '/link/rplidar_link/sensor/rplidar/scan'],
             'scan')
         ],
-        condition=IfCondition("not use_gpu_lidar and not use_velodyne_lidar")
+        condition=LaunchConfigurationNotEquals('use_gpu_lidar', 'true')
     )
 
     # 3D LiDAR bridge
@@ -139,30 +136,6 @@ def generate_launch_description():
             'cloud')
         ],
         condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
-    )
-
-    # Velodyne LiDAR bridge
-    velodyne_bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        name='velodyne_bridge',
-        output='screen',
-        parameters=[{
-            'use_sim_time': use_sim_time
-        }],
-        arguments=[
-            ['/world/', world,
-            '/model/', robot_name,
-            '/link/velodyne_link/sensor/velodyne/scan/points' +
-            '@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked']
-        ],
-        remappings=[
-            (['/world/', world,
-            '/model/', robot_name,
-            '/link/velodyne_link/sensor/velodyne/scan/points'],
-            'velodyne/packets_pcl')
-        ],
-        condition=LaunchConfigurationEquals('use_velodyne_lidar', 'true')
     )
 
     # Display message bridge
@@ -319,7 +292,6 @@ def generate_launch_description():
     ld.add_action(hmi_led_msg_bridge)
     ld.add_action(lidar_2d_bridge)
     ld.add_action(lidar_3d_bridge)
-    ld.add_action(velodyne_bridge)
     ld.add_action(oakd_camera_bridge)
     ld.add_action(imu_bridge)
     return ld

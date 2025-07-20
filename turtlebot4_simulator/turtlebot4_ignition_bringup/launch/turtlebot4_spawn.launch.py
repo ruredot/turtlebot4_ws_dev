@@ -54,9 +54,6 @@ ARGUMENTS = [
     DeclareLaunchArgument('use_gpu_lidar', default_value='false',
                           choices=['true', 'false'],
                           description='Use GPU LiDAR instead of RPLiDAR'),
-    DeclareLaunchArgument('use_velodyne_lidar', default_value='false',
-                          choices=['true', 'false'],
-                          description='Use Velodyne LiDAR instead of RPLiDAR'),
 ]
 
 for pose_element in ['x', 'y', 'z', 'yaw']:
@@ -139,8 +136,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([robot_description_launch]),
             launch_arguments=[('model', LaunchConfiguration('model')),
                             ('use_sim_time', LaunchConfiguration('use_sim_time')),
-                            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar')),
-                            ('use_velodyne_lidar', LaunchConfiguration('use_velodyne_lidar'))]
+                            ('use_gpu_lidar', LaunchConfiguration('use_gpu_lidar'))]
         ),
 
         # Dock description
@@ -183,8 +179,7 @@ def generate_launch_description():
                 ('model', LaunchConfiguration('model')),
                 ('robot_name', robot_name),
                 ('dock_name', dock_name),
-                ('namespace', namespace),
-                ('use_velodyne_lidar', LaunchConfiguration('use_velodyne_lidar'))]
+                ('namespace', namespace)]
         ),
 
         # TurtleBot 4 nodes
@@ -258,85 +253,6 @@ def generate_launch_description():
             ],
             condition=LaunchConfigurationEquals('use_gpu_lidar', 'true')
         ),
-
-        # Velodyne static transforms
-        Node(
-            name='velodyne_stf',
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            output='screen',
-            arguments=[
-                '0', '0', '0', '0', '0', '0.0',
-                'velodyne_link', [robot_name, '/velodyne_link/velodyne']],
-            remappings=[
-                ('/tf', 'tf'),
-                ('/tf_static', 'tf_static'),
-            ],
-            condition=LaunchConfigurationEquals('use_velodyne_lidar', 'true')
-        ),
-
-        # Velodyne driver node
-        Node(
-            package='velodyne_driver',
-            executable='velodyne_driver_node',
-            name='velodyne_driver_node',
-            parameters=[{
-                'model': 'VLP16',
-                'rpm': 600.0,
-                'port': 2368,
-                'use_sim_time': use_sim_time
-            }],
-            remappings=[
-                ('velodyne_packets', 'velodyne/packets')
-            ],
-            condition=LaunchConfigurationEquals('use_velodyne_lidar', 'true')
-        ),
-
-        # Velodyne pointcloud node
-        Node(
-            package='velodyne_pointcloud',
-            executable='velodyne_transform_node',
-            name='velodyne_transform_node',
-            parameters=[{
-                'model': 'VLP16',
-                'min_range': 0.9,
-                'max_range': 100.0,
-                'use_sim_time': use_sim_time
-            }],
-            remappings=[
-                ('velodyne_packets', 'velodyne/packets'),
-                ('velodyne_points', 'velodyne_points')
-            ],
-            condition=LaunchConfigurationEquals('use_velodyne_lidar', 'true')
-        ),
-
-        # Velodyne laserscan node for Nav2 compatibility
-        Node(
-            package='pointcloud_to_laserscan',
-            executable='pointcloud_to_laserscan_node',
-            name='pointcloud_to_laserscan',
-            parameters=[{
-                'target_frame': 'velodyne_link',
-                'transform_tolerance': 0.01,
-                'min_height': -0.1,
-                'max_height': 0.1,
-                'angle_min': -3.14159,
-                'angle_max': 3.14159,
-                'angle_increment': 0.00349066,
-                'scan_time': 0.1,
-                'range_min': 0.9,
-                'range_max': 100.0,
-                'use_inf': True,
-                'inf_epsilon': 1.0,
-                'use_sim_time': use_sim_time
-            }],
-            remappings=[
-                ('cloud_in', 'velodyne_points'),
-                ('scan', 'scan')
-            ],
-            condition=LaunchConfigurationEquals('use_velodyne_lidar', 'true')
-        ),
-
 
         # OAKD static transform
         # Required for pointcloud. See https://github.com/gazebosim/gz-sensors/issues/239

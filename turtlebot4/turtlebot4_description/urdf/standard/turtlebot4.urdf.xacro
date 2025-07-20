@@ -4,7 +4,6 @@
   <xacro:include filename="$(find irobot_create_description)/urdf/create3.urdf.xacro" />
   <xacro:include filename="$(find turtlebot4_description)/urdf/sensors/rplidar.urdf.xacro" />
   <xacro:include filename="$(find turtlebot4_description)/urdf/sensors/gpu_lidar.urdf.xacro" />
-  <xacro:include filename="$(find turtlebot4_description)/urdf/sensors/velodyne.urdf.xacro" />
   <xacro:include filename="$(find turtlebot4_description)/urdf/sensors/oakd.urdf.xacro" />
   <xacro:include filename="$(find turtlebot4_description)/urdf/sensors/camera_bracket.urdf.xacro" />
   <xacro:include filename="$(find turtlebot4_description)/urdf/standard/tower_standoff.urdf.xacro" />
@@ -118,19 +117,11 @@
               rpy="0 0 ${pi/2}"/>
     </xacro:gpu_lidar>
   </xacro:if>
-  <xacro:if value="$(arg use_velodyne_lidar)">
-    <xacro:velodyne name="velodyne" parent_link="shell_link" gazebo="$(arg gazebo)">
-      <origin xyz="${rplidar_x_offset} ${rplidar_y_offset} ${rplidar_z_offset}"
-              rpy="0 0 0"/>
-    </xacro:velodyne>
-  </xacro:if>
   <xacro:unless value="$(arg use_gpu_lidar)">
-    <xacro:unless value="$(arg use_velodyne_lidar)">
-      <xacro:rplidar name="rplidar" parent_link="shell_link" gazebo="$(arg gazebo)">
-        <origin xyz="${rplidar_x_offset} ${rplidar_y_offset} ${rplidar_z_offset}"
-                rpy="0 0 ${pi/2}"/>
-      </xacro:rplidar>
-    </xacro:unless>
+    <xacro:rplidar name="rplidar" parent_link="shell_link" gazebo="$(arg gazebo)">
+      <origin xyz="${rplidar_x_offset} ${rplidar_y_offset} ${rplidar_z_offset}"
+              rpy="0 0 ${pi/2}"/>
+    </xacro:rplidar>
   </xacro:unless>
 
   <xacro:camera_bracket name="oakd_camera_bracket">

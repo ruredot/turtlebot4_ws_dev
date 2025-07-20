@@ -39,9 +39,6 @@ ARGUMENTS = [
     DeclareLaunchArgument('use_gpu_lidar', default_value='false',
                           choices=['true', 'false'],
                           description='Use GPU LiDAR instead of RPLiDAR'),
-    DeclareLaunchArgument('use_velodyne_lidar', default_value='false',
-                            choices=['true', 'false'],
-                            description='Use Velodyne LiDAR instead of RPLiDAR'),
 ]
 
 
@@ -64,8 +61,7 @@ def generate_launch_description():
                 'xacro', ' ', xacro_file, ' ',
                 'gazebo:=ignition', ' ',
                 'namespace:=', namespace, ' ',
-                'use_gpu_lidar:=', LaunchConfiguration('use_gpu_lidar'), ' ',
-                'use_velodyne_lidar:=', LaunchConfiguration('use_velodyne_lidar')])},
+                'use_gpu_lidar:=', LaunchConfiguration('use_gpu_lidar')])},
         ],
         remappings=[
             ('/tf', 'tf'),
